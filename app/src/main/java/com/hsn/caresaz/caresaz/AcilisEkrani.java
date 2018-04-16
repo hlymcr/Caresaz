@@ -3,7 +3,6 @@ package com.hsn.caresaz.caresaz;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 public class AcilisEkrani extends Activity {
@@ -27,7 +26,7 @@ public class AcilisEkrani extends Activity {
             public void run() {
                 // This method will be executed once the timer is over
                 // Start your app main activity
-                Intent i = new Intent(AcilisEkrani.this, AnaSayfa.class);
+                Intent i = new Intent(AcilisEkrani.this, GirisKayit.class);
                 startActivity(i);
 
                 // close this activity

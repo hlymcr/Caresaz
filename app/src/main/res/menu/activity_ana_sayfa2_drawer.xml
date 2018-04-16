@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_profil"
+            android:icon="@drawable/user"
+            android:title="Profil" />
+        <item
+            android:id="@+id/nav_paylasimlar"
+            android:icon="@drawable/cihazlarim"
+            android:title="Paylaşımlar" />
+        <item
+            android:id="@+id/nav_bildirim"
+            android:icon="@drawable/bildirimler"
+            android:title="Bildirimler" />
+        <item
+            android:id="@+id/nav_aktivasyon"
+            android:icon="@drawable/aktivasyon"
+            android:title="Aktivasyon" />
+
+        <item
+            android:id="@+id/nav_manage"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="Ayarlar" />
+        <item
+            android:id="@+id/nav_send"
+            android:icon="@drawable/ic_menu_send"
+            android:title="Mesajlarım" />
+    </group>
+
+    <item android:title="İletişim">
+        <menu>
+            <item
+                android:id="@+id/nav_hakkimizda"
+                android:icon="@drawable/hakkimizda"
+                android:title="Hakkımızda" />
+            <item
+                android:id="@+id/nav_yardim"
+                android:icon="@drawable/yardim"
+                android:title="Yardım" />
+
+
+
+        </menu>
+    </item>
+
+</menu>
