@@ -83,6 +83,7 @@ public class PaylasimEkle extends AppCompatActivity {
         kayipResim = (ImageView) findViewById(R.id.resim);
         kayipPaylas = (Button) findViewById(R.id.paylas);
         Kdetay = (EditText) findViewById(R.id.detay);
+        getSupportActionBar().setTitle(R.string.paylasim_ekle);
 
 
         mAuth = FirebaseAuth.getInstance();
@@ -150,7 +151,7 @@ public class PaylasimEkle extends AppCompatActivity {
 
         }
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         userID = user.getUid();
 
@@ -220,6 +221,7 @@ public class PaylasimEkle extends AppCompatActivity {
             public void onClick(View view) {
 
                 if(paylasmaModel==null){
+                    //paylasmaModel=new PaylasmaModel(paylasmaKonu,il,ilce,tel.getText().toString(),tarih.getText().toString(),String.valueOf(filePath),Kdetay.getText().toString(),userID,ad,soyad);
                     paylasmaModel=new PaylasmaModel();
                     paylasmaModel.setPaylasmaKonusu(paylasmaKonu);
                     paylasmaModel.setIl(il);
@@ -228,9 +230,9 @@ public class PaylasimEkle extends AppCompatActivity {
                     paylasmaModel.setTarih(tarih.getText().toString());
                     paylasmaModel.setResimpath(String.valueOf(filePath));
                     paylasmaModel.setKayipDetay(Kdetay.getText().toString());
+                    paylasmaModel.setId(userID);
                     paylasmaModel.setAd(ad);
                     paylasmaModel.setSoyad(soyad);
-                    paylasmaModel.setId(userID);
                     mDatabase.child("PaylasilanKayip").child(userID).setValue(paylasmaModel);
 
                 }

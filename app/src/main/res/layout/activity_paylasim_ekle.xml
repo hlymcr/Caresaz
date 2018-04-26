@@ -25,7 +25,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
                 android:layout_marginLeft="10dp"
-                android:text="Paylaşım Konusu"
+                android:text="@string/paylasim_konusu"
                 android:textStyle="bold" />
 
             <Spinner
@@ -48,7 +48,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="15dp"
                     android:layout_weight="1"
-                    android:text="İl"
+                    android:text="@string/il"
                     android:textStyle="bold" />
 
                 <TextView
@@ -58,7 +58,7 @@
                     android:layout_marginBottom="5dp"
                     android:layout_marginTop="15dp"
                     android:layout_weight="1"
-                    android:text="İlçe"
+                    android:text="@string/ilçe"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
@@ -118,7 +118,7 @@
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="10dp"
                 android:ems="10"
-                android:hint="Tarih"
+                android:hint="@string/tarih"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
@@ -129,7 +129,7 @@
                 android:layout_marginBottom="10dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="10dp"
-                android:text="Fotoğraf Ekleyin"
+                android:text="@string/foto_ekle"
                 android:textStyle="bold" />
 
             <ImageView
@@ -148,7 +148,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="10dp"
-                android:hint="Kayıp Detaylarını Giriniz"
+                android:hint="@string/detay"
                 android:textSize="14sp" />
 
             <Button
@@ -159,7 +159,7 @@
                 android:layout_marginLeft="70dp"
                 android:layout_marginRight="70dp"
                 android:background="@drawable/custom_gradient"
-                android:text="Paylaş"
+                android:text="@string/paylas"
                 android:textColor="@android:color/background_light" />
 
         </LinearLayout>

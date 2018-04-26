@@ -3,76 +3,73 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/lin1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.hsn.caresaz.caresaz.CihazEkle">
 
-    <ScrollView xmlns:tools="http://schemas.android.com/tools"
+    <ImageView
+        android:id="@+id/yardim"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context="com.hsn.caresaz.caresaz.PaylasimEkle">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        app:srcCompat="@android:drawable/ic_menu_help" />
 
-        <ImageView
-            android:id="@+id/yardim"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
-            app:srcCompat="@android:drawable/ic_menu_help" />
+    <EditText
+        android:id="@+id/kod"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="15dp"
+        android:ems="10"
+        android:fontFamily="monospace"
+        android:hint="@string/aktivasyon_kodu"
+        android:inputType="textPersonName"
+        android:textSize="14sp"
+        android:textStyle="normal|bold" />
+
+    <ImageView
+        android:id="@+id/cihazresim"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="20dp"
+        android:src="@drawable/logo" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginBottom="20dp"
+        android:orientation="horizontal">
 
         <EditText
-            android:id="@+id/kod"
-            android:layout_width="match_parent"
+            android:id="@+id/isim"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
             android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="15dp"
             android:ems="10"
-            android:fontFamily="monospace"
-            android:hint="Aktivasyon Kodu Giriniz"
-            android:inputType="textPersonName"
-            android:textSize="14sp"
-            android:textStyle="normal|bold" />
+            android:hint="@string/isim_gir"
+            android:inputType="textPersonName" />
 
-        <ImageView
-            android:id="@+id/imageView3"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="20dp"
-            android:layout_marginTop="20dp"
-            app:srcCompat="@mipmap/ic_launcher_round" />
-
-        <LinearLayout
+        <Spinner
+            android:id="@+id/spinner"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:layout_marginBottom="20dp"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/isim"
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:ems="10"
-                android:hint="İsim giriniz"
-                android:inputType="textPersonName" />
-
-            <Spinner
-                android:id="@+id/spinner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp" />
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="150dp"
-            android:text="Button" />
-    </ScrollView>
+            android:layout_marginTop="15dp" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/ekle"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/custom_gradient_button"
+        android:text="@string/cihaz_ekle"
+        android:textColor="@android:color/white" />
+
 
 </LinearLayout>

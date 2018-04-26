@@ -33,7 +33,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="TextView" />
+            android:text="TextView"
+            android:textColor="@color/material_drawer_dark_selected" />
 
         <ImageView
             android:id="@+id/kayipresim"

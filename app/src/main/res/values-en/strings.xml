@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <string name="app_name">Çaresaz</string>
+    <string name="prompt_email">E-mail</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Log In</string>
+    <string name="action_sign_in_short">Login</string>
+    <string name="error_invalid_email">Invalid e-mail address</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="kayit"><u>Are not you registered?</u></string>
+    <string name="slogan">Dont Losing</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="kayitOl">Register</string>
+    <string name="kayitIptal">Cancel</string>
+    <string name="dialogbaslik">Register</string>
+    <string name="title_activity_ana_sayfa">Home</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_kullanici_profil">Profile</string>
+    <string name="tab_text_1">Shared</string>
+    <string name="tab_text_2">Follow</string>
+    <string name="msg_failed_to_get_intent_data">Failed to get intent data</string>
+    <string name="kod_yardim">Number 1: Enter the activation code that came with the device.</string>
+    <string name="resim_yardim">Number 2: Select an image from your device.</string>
+    <string name="isim_yardim">Number 3: Write your name on the device.</string>
+    <string name="tur_yardim">Number 4: Select the device type (wrist strap, leash).</string>
+    <string name="cihaz_ekle">Add Device</string>
+    <string name="paylasimlar">Shares</string>
+    <string name="paylasim_ekle">Add Share</string>
+    <string name="cikis">Log Out</string>
+    <string name="cihaz_yok">Your device is not available.</string>
+    <string name="profil">Profile</string>
+    <string name="bildirimler">Notifications</string>
+    <string name="aktivasyon">Activation</string>
+    <string name="ayarlar">Settings</string>
+    <string name="message">Message</string>
+    <string name="aktivasyon_kodu">Enter the activation code.</string>
+
+    <string name="paylasim_konusu">Sharing Concept</string>
+    <string name="il">Province</string>
+    <string name="ilçe">District</string>
+    <string name="tarih">Date</string>
+    <string name="foto_ekle">Add Photo</string>
+    <string name="detay">Detail</string>
+    <string name="paylas">Share</string>
+    <string name="konum">your location</string>
+    <string name="cihazlar">My devices</string>
+    <string name="tamam">Ok</string>
+    <string name="isim">Name</string>
+    <string name="soyad">Surname</string>
+    <string name="sehir_seciniz">Select City</string>
+    <string name="kaydet">Save</string>
+    <string name="hakkımızda">About us</string>
+    <string name="yardım">Help</string>
+
+
+    <string name="isim_gir">Enter your name.</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

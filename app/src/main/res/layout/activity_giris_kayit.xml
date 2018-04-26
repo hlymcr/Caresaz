@@ -4,16 +4,33 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+
     android:background="@android:color/background_light"
     android:orientation="vertical"
     tools:context="com.hsn.caresaz.caresaz.GirisKayit">
 
 
+    <ImageView
+        android:id="@+id/turkey"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="320dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        app:srcCompat="@drawable/turkey" />
+
+    <ImageView
+        android:id="@+id/english"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="320dp"
+        app:srcCompat="@drawable/language" />
+
     <ScrollView
         android:id="@+id/scroll_form"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingTop="70dp">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:id="@+id/login_form"
@@ -21,6 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="40dp"
             android:layout_marginRight="40dp"
+            android:layout_marginTop="50dp"
             android:background="@android:color/transparent"
             android:orientation="vertical">
 
@@ -74,8 +92,8 @@
                     android:layout_marginLeft="50dp"
                     android:layout_marginRight="50dp"
                     android:layout_weight="1"
+                    android:text="@string/action_sign_in_short"
                     android:background="@drawable/custom_gradient_button"
-                    android:text="Giriş"
                     android:textColor="@android:color/background_light" />
 
             </android.support.design.widget.TextInputLayout>

@@ -2,15 +2,20 @@ package com.hsn.caresaz.caresaz.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.media.Image;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,7 +42,7 @@ import java.util.List;
  * Created by HULYA on 8.04.2018.
  */
 
-public class PaylasilanAdapter extends BaseAdapter {
+public class PaylasilanAdapter extends ArrayAdapter<PaylasmaModel> {
 
     LayoutInflater layoutInflater;
     ArrayList<PaylasmaModel> paylasilanlist;
@@ -45,98 +50,93 @@ public class PaylasilanAdapter extends BaseAdapter {
     FirebaseDatabase database;
     private String userID;
     private DatabaseReference mDatabase;
-    private ImageView kullaniciResim,kayipResim;
+    private ImageView kullaniciResim, kayipResim;
     private TextView paylasKonu;
     private FirebaseStorage fStorage;
     private FirebaseAuth mAuth;
     private TextView isim;
+    private Context context;
+    //Profil resimlerini oval yapmayı sağlayan metod
+    final Transformation transformation = new RoundedTransformationBuilder()
+            .borderColor(Color.GRAY)
+            .borderWidthDp(4)
+            .cornerRadiusDp(35)
+            .oval(true)
+            .build();
 
-    public PaylasilanAdapter(Context activity, List<PaylasmaModel> paylasilanlist) {
-
-        layoutInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    public PaylasilanAdapter(Context context, List<PaylasmaModel> paylasilanlist) {
+        super(context, 0, paylasilanlist);
+        layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.paylasilanlist = (ArrayList<PaylasmaModel>) paylasilanlist;
+        this.context = context;
 
 
     }
-    @Override
-    public int getCount() {
-        return paylasilanlist.size();
-    }
 
     @Override
-    public Object getItem(int i) {
-        return paylasilanlist.get(i);
-    }
+    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        View v = convertView;
+        final ViewHolder holder;
+        if(v==null){
+            LayoutInflater vi =
+                    (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            v = vi.inflate(R.layout.paylasilan_list_item, null);
+            holder = new ViewHolder();
+            holder.userName=(TextView)v.findViewById(R.id.isim);
+            holder.konubaslik=(TextView)v.findViewById(R.id.konubaslik);
+            holder.userImage=(ImageView)v.findViewById(R.id.kullaniciresim);
+            holder.kayipResim=(ImageView)v.findViewById(R.id.kayipresim);
+            v.setTag(holder);
 
-    @Override
-    public long getItemId(int i) {
-        return i;
-    }
-
-    @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
-        PaylasmaModel paylasmaModel =paylasilanlist.get(i);
-        final View satir = layoutInflater.inflate(R.layout.paylasilan_list_item, null);
-        database = FirebaseDatabase.getInstance();
-        isim=satir.findViewById(R.id.isim);
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-        userID = user.getUid();
-
-        Log.d("userID:", userID);
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mAuth = FirebaseAuth.getInstance();
-        fStorage = FirebaseStorage.getInstance();
-
-
-        //Profil resimlerini oval yapmayı sağlayan metod
-        final Transformation transformation = new RoundedTransformationBuilder()
-                .borderColor(Color.GRAY)
-                .borderWidthDp(4)
-                .cornerRadiusDp(35)
-                .oval(true)
-                .build();
-
-        kullaniciResim = (ImageView)satir.findViewById(R.id.kullaniciresim);
-        kayipResim = (ImageView)satir.findViewById(R.id.kayipresim);
-        paylasKonu = (TextView)satir.findViewById(R.id.konubaslik);
-
-        paylasKonu.setText(paylasmaModel.getPaylasmaKonusu());
-
+        }
+        else {
+            holder = (ViewHolder) v.getTag();
+        }
+        PaylasmaModel paylasmaModel = paylasilanlist.get(position);
+        holder.userName.setText(paylasmaModel.getAd()+" "+paylasmaModel.getSoyad());
+        holder.konubaslik.setText(paylasmaModel.getPaylasmaKonusu());
+        FirebaseStorage fStorage = FirebaseStorage.getInstance();
         StorageReference storageRef = fStorage.getReference().child("users").child(paylasmaModel.getId());
         storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
 
-                Picasso.with(satir.getContext()).load(uri).fit().transform(transformation).into(kullaniciResim);
+                Picasso.with(context).load(uri).fit().transform(transformation).centerCrop().into(holder.userImage);
+
 
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
 
-                Toast.makeText(satir.getContext(), ""+e.getMessage(), Toast.LENGTH_SHORT).show();
 
             }
         });
-        StorageReference storageReference = fStorage.getReference().child("paylasResim").child(paylasmaModel.getId());
-        storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+        StorageReference storageRef2 = fStorage.getReference().child("paylasResim").child(paylasmaModel.getId());
+        storageRef2.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
 
-                Picasso.with(satir.getContext()).load(uri).fit().into(kayipResim);
+                Picasso.with(context).load(uri).fit().centerCrop().into(holder.kayipResim);
+
 
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
 
-                Toast.makeText(satir.getContext(), ""+e.getMessage(), Toast.LENGTH_SHORT).show();
 
             }
         });
+        return v;
 
-        return satir;
+
+    }
+    static class ViewHolder {
+        TextView userName;
+        TextView konubaslik;
+        ImageView userImage;
+        ImageView kayipResim;
     }
 }
+

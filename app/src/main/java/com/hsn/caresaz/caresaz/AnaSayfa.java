@@ -1,18 +1,14 @@
 package com.hsn.caresaz.caresaz;
 
-import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Looper;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -25,6 +21,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -37,7 +37,17 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.hsn.caresaz.caresaz.adapter.CihazlarAdapter;
+import com.hsn.caresaz.caresaz.model.Cihaz;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class AnaSayfa extends AppCompatActivity
@@ -45,10 +55,16 @@ public class AnaSayfa extends AppCompatActivity
 
     private FirebaseAuth firebaseAuth;
     private DatabaseReference databaseReference;
-    private GoogleMap googleMap;
-
-
-
+    public static GoogleMap googleMap;
+    private FloatingActionButton ekle;
+    String userID;
+    private DatabaseReference mDatabase;
+    private FirebaseStorage fStorage;
+    private TextView konum;
+    private ListView list;
+    private CihazlarAdapter cihazlarAdapter;
+    private List<Cihaz> cihazList=null;
+    private ProgressDialog progressDialog;
 
 
     @Override
@@ -56,8 +72,13 @@ public class AnaSayfa extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ana_sayfa);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        ekle = (FloatingActionButton) findViewById(R.id.fab);
+        final TextView cihaz=(TextView)findViewById(R.id.textView3);
         setSupportActionBar(toolbar);
+        konum = (TextView) findViewById(R.id.konum);
+        konum.setText("Konumunuz");
 
+        firebaseAuth = FirebaseAuth.getInstance();
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -65,6 +86,78 @@ public class AnaSayfa extends AppCompatActivity
         } else {
             // Show rationale and request permission.
         }
+
+        ekle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(AnaSayfa.this, CihazEkle.class);
+                startActivity(intent);
+
+            }
+        });
+
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        firebaseAuth = FirebaseAuth.getInstance();
+        userID = user.getUid();
+
+        Log.d("userID:", userID);
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        databaseReference = FirebaseDatabase.getInstance().getReference("cihazlar");
+
+
+        list = (ListView) findViewById(R.id.listView);
+
+        cihazList = new ArrayList<>();
+
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String id = String.valueOf(dataSnapshot.child(userID).getKey());
+                Log.d("getkey", String.valueOf(dataSnapshot.child(userID).getKey()));
+
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    Log.d("key12", postSnapshot.getKey());
+                   /* final String isim = postSnapshot.child("isim").getValue().toString();
+                    final String tur = postSnapshot.child("tur").getValue().toString();
+                    final String resim = postSnapshot.child("resim").getValue().toString();
+                    final String kod = postSnapshot.child("kod").getValue().toString();
+                    cihazList.add(new Cihaz(isim,tur,resim,kod));*/
+                    if(postSnapshot.getKey().equals(userID)){
+                        Cihaz cihaz = postSnapshot.getValue(Cihaz.class);
+                        cihazList.add(cihaz);
+                    }
+                    else{
+                        cihaz.setText(R.string.cihaz_yok);
+                    }
+
+                }
+
+                cihazlarAdapter = new CihazlarAdapter(getApplicationContext(), cihazList);
+                list.setAdapter(cihazlarAdapter);
+            }
+
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+                Toast.makeText(AnaSayfa.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener()
+
+        {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                fetchData process = new fetchData();
+                process.execute();
+            }
+        });
+
 
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -78,9 +171,6 @@ public class AnaSayfa extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-
-        firebaseAuth = FirebaseAuth.getInstance();
 
 
     }
@@ -105,7 +195,9 @@ public class AnaSayfa extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-
+        if (cihazlarAdapter != null) {
+            cihazlarAdapter.notifyDataSetChanged();
+        }
         // Display the connection status
 
     }
@@ -138,12 +230,12 @@ public class AnaSayfa extends AppCompatActivity
 
     @Override
     public void onMyLocationChange(Location location) {
-        double latidue =location.getLatitude();
+        double latidue = location.getLatitude();
         double longitude = location.getLongitude();
-        LatLng latLng = new LatLng(latidue,longitude);
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,18));
+        LatLng latLng = new LatLng(latidue, longitude);
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
         googleMap.setOnMyLocationButtonClickListener(null);
-        MarkerOptions marker = new MarkerOptions().position(new LatLng(latidue,longitude)).title("Konumum");
+        MarkerOptions marker = new MarkerOptions().position(new LatLng(latidue, longitude)).title("Konumum");
         marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
         googleMap.addMarker(marker);
 
@@ -171,7 +263,9 @@ public class AnaSayfa extends AppCompatActivity
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             return mDialog;
         }
+
     }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -181,7 +275,6 @@ public class AnaSayfa extends AppCompatActivity
             super.onBackPressed();
         }
     }
-
 
 
     @Override
@@ -218,8 +311,8 @@ public class AnaSayfa extends AppCompatActivity
             startActivity(intent);
 
         } else if (id == R.id.nav_aktivasyon) {
-             firebaseAuth.signOut();
-
+            Intent intent = new Intent(this, CihazEkle.class);
+            startActivity(intent);
         } else if (id == R.id.nav_bildirim) {
 
         } else if (id == R.id.nav_paylasimlar) {
@@ -232,17 +325,47 @@ public class AnaSayfa extends AppCompatActivity
 
         } else if (id == R.id.nav_send) {
 
-        }
-        else if (id ==R.id.nav_hakkimizda){
+        } else if (id == R.id.nav_cikis) {
+            cikisyap();
 
-        }
-        else if(id == R.id.nav_yardim){
+        } else if (id == R.id.nav_hakkimizda) {
+
+        } else if (id == R.id.nav_yardim) {
 
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void cikisyap() {
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(AnaSayfa.this);
+        builder1.setMessage("Çıkış yapmak ister misin?");
+        builder1.setCancelable(true);
+
+        builder1.setPositiveButton(
+                "Evet",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        firebaseAuth.signOut();
+                        dialog.cancel();
+                        startActivity(new Intent(AnaSayfa.this, GirisKayit.class));
+                        finish();
+
+                    }
+                });
+
+        builder1.setNegativeButton(
+                "Hayır",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+
+        AlertDialog alert11 = builder1.create();
+        alert11.show();
     }
 
 

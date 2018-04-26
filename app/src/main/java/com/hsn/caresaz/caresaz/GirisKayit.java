@@ -3,6 +3,7 @@ package com.hsn.caresaz.caresaz;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.util.Locale;
 
 public class GirisKayit extends AppCompatActivity {
 
@@ -39,6 +41,7 @@ public class GirisKayit extends AppCompatActivity {
     Button giris, kayitOl, iptal;
     ImageView sifreU;
     ImageView resim;
+    ImageView turkey,english;
 
     FirebaseAuth mAuth;
 
@@ -56,6 +59,38 @@ public class GirisKayit extends AppCompatActivity {
         sifre = (EditText) findViewById(R.id.sifre);
         kayit = (TextView) findViewById(R.id.kayit);
         giris = (Button) findViewById(R.id.giris);
+
+        turkey =(ImageView)findViewById(R.id.turkey);
+        english=(ImageView)findViewById(R.id.english);
+
+        turkey.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Locale locale = new Locale(""); //locale i default locale yani türkçe yaptık. Artık değişkenler values paketinden alınacak
+                Locale.setDefault(locale);
+                Configuration config = new Configuration();
+                config.locale = locale;
+                getBaseContext().getResources().updateConfiguration(config,
+                        getBaseContext().getResources().getDisplayMetrics());
+                finish();//mevcut acivity i bitir.
+                startActivity(getIntent());
+            }
+        });
+
+
+        english.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Locale locale = new Locale("en");  //locale en yaptık. Artık değişkenler values-en paketinden alınacak
+                Locale.setDefault(locale);
+                Configuration config = new Configuration();
+                config.locale = locale;
+                getBaseContext().getResources().updateConfiguration(config,
+                        getBaseContext().getResources().getDisplayMetrics());
+                finish();//mevcut acivity i bitir.
+                startActivity(getIntent());//activity i baştan yükle
+            }
+        });
 
 
 

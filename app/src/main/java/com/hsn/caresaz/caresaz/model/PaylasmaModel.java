@@ -21,6 +21,20 @@ public class PaylasmaModel implements Serializable {
     private String ad;
     private String soyad;
 
+   /* public PaylasmaModel(String konu, String il, String ilce, String tel, String tarih, String path, String kayipDetay, String id, String ad, String soyad) {
+        this.paylasmaKonusu=konu;
+        this.il=il;
+        this.ilce=ilce;
+        this.tel=tel;
+        this.tarih=tarih;
+        this.resimpath=path;
+        this.kayipDetay=kayipDetay;
+        this.id=id;
+        this.ad=ad;
+        this.soyad=soyad;
+
+    }
+*/
 
     public String getPaylasmaKonusu() {
         return paylasmaKonusu;

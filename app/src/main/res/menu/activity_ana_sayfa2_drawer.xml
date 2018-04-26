@@ -7,28 +7,32 @@
         <item
             android:id="@+id/nav_profil"
             android:icon="@drawable/user"
-            android:title="Profil" />
+            android:title="@string/profil"/>
         <item
             android:id="@+id/nav_paylasimlar"
             android:icon="@drawable/cihazlarim"
-            android:title="Paylaşımlar" />
+            android:title="@string/paylasimlar" />
         <item
             android:id="@+id/nav_bildirim"
             android:icon="@drawable/bildirimler"
-            android:title="Bildirimler" />
+            android:title="@string/bildirimler"  />
         <item
             android:id="@+id/nav_aktivasyon"
             android:icon="@drawable/aktivasyon"
-            android:title="Aktivasyon" />
+            android:title="@string/aktivasyon" />
 
         <item
             android:id="@+id/nav_manage"
             android:icon="@drawable/ic_menu_manage"
-            android:title="Ayarlar" />
+            android:title="@string/ayarlar"/>
         <item
             android:id="@+id/nav_send"
             android:icon="@drawable/ic_menu_send"
-            android:title="Mesajlarım" />
+            android:title="@string/message" />
+        <item
+            android:id="@+id/nav_cikis"
+            android:icon="@drawable/cikis"
+            android:title="@string/cikis"/>
     </group>
 
     <item android:title="İletişim">
@@ -36,11 +40,11 @@
             <item
                 android:id="@+id/nav_hakkimizda"
                 android:icon="@drawable/hakkimizda"
-                android:title="Hakkımızda" />
+                android:title="@string/hakkımızda" />
             <item
                 android:id="@+id/nav_yardim"
                 android:icon="@drawable/yardim"
-                android:title="Yardım" />
+                android:title="@string/yardım"/>
 
 
 

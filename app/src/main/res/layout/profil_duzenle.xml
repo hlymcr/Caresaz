@@ -40,7 +40,7 @@
                 android:id="@+id/adi"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Ad" />
+                android:hint="@string/isim" />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
@@ -51,7 +51,7 @@
                 android:id="@+id/soyad"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Soyad" />
+                android:hint="@string/soyad"/>
 
         </android.support.design.widget.TextInputLayout>
 
@@ -74,7 +74,7 @@
             android:layout_height="wrap_content"
             android:paddingLeft="10dp"
             android:paddingTop="10dp"
-            android:text="Şehir seçiniz" />
+            android:text="@string/sehir_seciniz" />
 
         <Spinner
             android:id="@+id/sehir"
@@ -90,7 +90,7 @@
             android:layout_marginLeft="100dp"
             android:layout_marginRight="100dp"
             android:background="@drawable/custom_gradient"
-            android:text="Kaydet"
+            android:text="@string/kaydet"
             android:textColor="@android:color/background_light" />
     </LinearLayout>
 

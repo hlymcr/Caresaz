@@ -35,6 +35,7 @@ public class Paylasimlar extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_paylasimlar);
+        getSupportActionBar().setTitle(R.string.paylasimlar);
 
 
 
@@ -60,17 +61,28 @@ public class Paylasimlar extends AppCompatActivity {
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
                 progressDialog.dismiss();
                 paylasilanList.clear();
 
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     PaylasmaModel userObj = postSnapshot.getValue(PaylasmaModel.class);
                     paylasilanList.add(userObj);
+                  /*  final String ad= postSnapshot.child("ad").getValue().toString();
+                    final String soyad= postSnapshot.child("soyad").getValue().toString();
+                    final String id = postSnapshot.child("id").getValue().toString();
+                    final String il = postSnapshot.child("il").getValue().toString();
+                    final String ilce = postSnapshot.child("ilce").getValue().toString();
+                    final String kayipDetay = postSnapshot.child("kayipDetay").getValue().toString();
+                    final String konu = postSnapshot.child("paylasmaKonusu").getValue().toString();
+                    final String path = postSnapshot.child("resimpath").getValue().toString();
+                    final String tarih = postSnapshot.child("tarih").getValue().toString();
+                    final String tel = postSnapshot.child("tel").getValue().toString();
+                    paylasilanList.add(new PaylasmaModel(konu,il,ilce,tel,tarih,path,kayipDetay,id,ad,soyad));*/
+
+
                 }
 
                 paylasilanAdapter = new PaylasilanAdapter(getApplicationContext(),paylasilanList);
@@ -82,7 +94,7 @@ public class Paylasimlar extends AppCompatActivity {
             public void onCancelled(DatabaseError databaseError) {
 
                 progressDialog.dismiss();
-                Toast.makeText(Paylasimlar.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(Paylasimlar.this, "DATABASE error", Toast.LENGTH_SHORT).show();
             }
         });
 
