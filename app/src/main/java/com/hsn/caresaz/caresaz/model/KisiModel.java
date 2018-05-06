@@ -1,4 +1,4 @@
-package com.hsn.caresaz.caresaz;
+package com.hsn.caresaz.caresaz.model;
 
 import android.widget.BaseAdapter;
 

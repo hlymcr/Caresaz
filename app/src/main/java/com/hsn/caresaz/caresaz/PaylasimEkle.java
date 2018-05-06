@@ -33,6 +33,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
+import com.hsn.caresaz.caresaz.ProfilResimtasarim.RoundedTransformationBuilder;
 import com.hsn.caresaz.caresaz.model.KullaniciModel;
 import com.hsn.caresaz.caresaz.model.PaylasmaModel;
 import com.hsn.caresaz.caresaz.model.SehirIlceModel;
@@ -55,17 +56,17 @@ public class PaylasimEkle extends AppCompatActivity {
     String userID,ad,soyad;
     EditText tarih, tel, Kdetay;
     private DatePickerDialog kayipTarih;
-    private SimpleDateFormat dateFormatter;
+    private SimpleDateFormat veriTarihFormat;
     private PaylasmaModel paylasmaModel;
     private ImageView kayipResim;
-    private static final int PICK_IMAGE_REQUEST = 123;
-    private Uri filePath;
-    private FirebaseAuth mAuth;
-    private FirebaseStorage fStorage;
-    private DatabaseReference mDatabase;
+    private static final int RESIM_ISTEK= 123;
+    private Uri dosyaYolu;
+    private FirebaseAuth mKullanici;
+    private FirebaseStorage firebaseDepolama;
+    private DatabaseReference mVeritabani;
     private Button kayipPaylas;
     private String paylasmaKonu, il, ilce;
-    private ProgressDialog progressDialog;
+    private ProgressDialog ekleDiyalog;
 
     final Transformation transformation = new RoundedTransformationBuilder()
             .borderColor(Color.GRAY)
@@ -86,8 +87,8 @@ public class PaylasimEkle extends AppCompatActivity {
         getSupportActionBar().setTitle(R.string.paylasim_ekle);
 
 
-        mAuth = FirebaseAuth.getInstance();
-        fStorage = FirebaseStorage.getInstance();
+        mKullanici = FirebaseAuth.getInstance();
+        firebaseDepolama = FirebaseStorage.getInstance();
 
 
         kayipResim.setOnClickListener(new View.OnClickListener() {
@@ -113,7 +114,7 @@ public class PaylasimEkle extends AppCompatActivity {
 
         //Tarih işlemi için fonksiyon kullanımı
 
-        dateFormatter = new SimpleDateFormat("dd-MM-yyyy", Locale.ROOT);
+        veriTarihFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.ROOT);
         setDateTimeField();
         tarih.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -157,9 +158,9 @@ public class PaylasimEkle extends AppCompatActivity {
 
         Log.d("userID:", userID);
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mVeritabani = FirebaseDatabase.getInstance().getReference();
 
-        mDatabase.child("kullanicilar").child(userID).addValueEventListener(new ValueEventListener() {
+        mVeritabani.child("kullanicilar").child(userID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 KullaniciModel kullaniciModel = dataSnapshot.getValue(KullaniciModel.class);
@@ -228,27 +229,27 @@ public class PaylasimEkle extends AppCompatActivity {
                     paylasmaModel.setIlce(ilce);
                     paylasmaModel.setTel(tel.getText().toString());
                     paylasmaModel.setTarih(tarih.getText().toString());
-                    paylasmaModel.setResimpath(String.valueOf(filePath));
+                    paylasmaModel.setResimpath(String.valueOf(dosyaYolu));
                     paylasmaModel.setKayipDetay(Kdetay.getText().toString());
                     paylasmaModel.setId(userID);
                     paylasmaModel.setAd(ad);
                     paylasmaModel.setSoyad(soyad);
-                    mDatabase.child("PaylasilanKayip").child(userID).setValue(paylasmaModel);
+                    mVeritabani.child("PaylasilanKayip").child(userID).setValue(paylasmaModel);
 
                 }
 
 
-                if (filePath != null) {
-                    progressDialog = new ProgressDialog(PaylasimEkle.this);
-                    progressDialog.setMessage("Paylaşım Ekleniyor...");
-                    progressDialog.setCancelable(false);
-                    progressDialog.show();
-                    StorageReference storageRef = fStorage.getReference().child("paylasResim").child(mAuth.getCurrentUser().getUid());
-                    storageRef.putFile(filePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                if (dosyaYolu != null) {
+                    ekleDiyalog = new ProgressDialog(PaylasimEkle.this);
+                    ekleDiyalog.setMessage("Paylaşım Ekleniyor...");
+                    ekleDiyalog.setCancelable(false);
+                    ekleDiyalog.show();
+                    StorageReference storageRef = firebaseDepolama.getReference().child("paylasResim").child(mKullanici.getCurrentUser().getUid());
+                    storageRef.putFile(dosyaYolu).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                            progressDialog.dismiss();
+                            ekleDiyalog.dismiss();
                             Snackbar snackbar = Snackbar
                                     .make(findViewById(R.id.lin2), "Kayıp Paylaşımı Eklendi!", Snackbar.LENGTH_LONG);
                             snackbar.show();
@@ -276,8 +277,6 @@ public class PaylasimEkle extends AppCompatActivity {
 
     }
 
-
-
     private void setDateTimeField() {
 
         Calendar newCalendar = Calendar.getInstance();
@@ -286,7 +285,7 @@ public class PaylasimEkle extends AppCompatActivity {
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                 Calendar newDate = Calendar.getInstance();
                 newDate.set(year, monthOfYear, dayOfMonth);
-                tarih.setText(dateFormatter.format(newDate.getTime()));
+                tarih.setText(veriTarihFormat.format(newDate.getTime()));
             }
 
         }, newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
@@ -296,17 +295,17 @@ public class PaylasimEkle extends AppCompatActivity {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Resim Seçiniz"), PICK_IMAGE_REQUEST);
+        startActivityForResult(Intent.createChooser(intent, "Resim Seçiniz"), RESIM_ISTEK);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    protected void onActivityResult(int istekKod, int sonucKod, Intent veri) {
+        super.onActivityResult(istekKod, sonucKod, veri);
 
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            filePath = data.getData();
+        if (istekKod == RESIM_ISTEK && sonucKod == RESULT_OK && veri != null && veri.getData() != null) {
+            dosyaYolu = veri.getData();
             try {
-                Picasso.with(PaylasimEkle.this).load(filePath).resize(800, 300).into(kayipResim);
+                Picasso.with(PaylasimEkle.this).load(dosyaYolu).resize(800, 300).into(kayipResim);
             } catch (Exception e) {
                 e.printStackTrace();
             }

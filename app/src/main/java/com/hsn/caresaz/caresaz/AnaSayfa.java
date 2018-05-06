@@ -2,7 +2,6 @@ package com.hsn.caresaz.caresaz;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -10,7 +9,6 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -43,9 +41,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
 import com.hsn.caresaz.caresaz.adapter.CihazlarAdapter;
 import com.hsn.caresaz.caresaz.model.Cihaz;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,18 +51,15 @@ import java.util.List;
 public class AnaSayfa extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleMap.OnMyLocationChangeListener {
 
-    private FirebaseAuth firebaseAuth;
-    private DatabaseReference databaseReference;
-    public static GoogleMap googleMap;
-    private FloatingActionButton ekle;
-    String userID;
-    private DatabaseReference mDatabase;
-    private FirebaseStorage fStorage;
+    private FirebaseAuth firebaseKullanici;
+    private DatabaseReference veritabaniReferans;
+    public static GoogleMap googleHarita;
+    private FloatingActionButton cihazekle;
+    private String kullaniciID;
     private TextView konum;
-    private ListView list;
+    private ListView liste;
     private CihazlarAdapter cihazlarAdapter;
-    private List<Cihaz> cihazList=null;
-    private ProgressDialog progressDialog;
+    private List<Cihaz> cihazListe = null;
 
 
     @Override
@@ -72,22 +67,17 @@ public class AnaSayfa extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ana_sayfa);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        ekle = (FloatingActionButton) findViewById(R.id.fab);
-        final TextView cihaz=(TextView)findViewById(R.id.textView3);
+        cihazekle = (FloatingActionButton) findViewById(R.id.fab);
+        final TextView cihaz = (TextView) findViewById(R.id.textView3);
+        liste = (ListView) findViewById(R.id.listView);
+
         setSupportActionBar(toolbar);
         konum = (TextView) findViewById(R.id.konum);
-        konum.setText("Konumunuz");
+        konum.setText(R.string.konum);
 
-        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseKullanici = FirebaseAuth.getInstance();
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            googleMap.setMyLocationEnabled(true);
-        } else {
-            // Show rationale and request permission.
-        }
-
-        ekle.setOnClickListener(new View.OnClickListener() {
+        cihazekle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(AnaSayfa.this, CihazEkle.class);
@@ -98,45 +88,30 @@ public class AnaSayfa extends AppCompatActivity
 
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        firebaseAuth = FirebaseAuth.getInstance();
-        userID = user.getUid();
+        firebaseKullanici = FirebaseAuth.getInstance();
+        kullaniciID = user.getUid();
 
-        Log.d("userID:", userID);
+        veritabaniReferans = FirebaseDatabase.getInstance().getReference("cihazlar");
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        cihazListe = new ArrayList<>();
 
-        databaseReference = FirebaseDatabase.getInstance().getReference("cihazlar");
-
-
-        list = (ListView) findViewById(R.id.listView);
-
-        cihazList = new ArrayList<>();
-
-        databaseReference.addValueEventListener(new ValueEventListener() {
+        veritabaniReferans.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                String id = String.valueOf(dataSnapshot.child(userID).getKey());
-                Log.d("getkey", String.valueOf(dataSnapshot.child(userID).getKey()));
+                String id = String.valueOf(dataSnapshot.child(kullaniciID).getKey());
+                Log.d("getkey", String.valueOf(dataSnapshot.child(kullaniciID).getKey()));
 
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     Log.d("key12", postSnapshot.getKey());
-                   /* final String isim = postSnapshot.child("isim").getValue().toString();
-                    final String tur = postSnapshot.child("tur").getValue().toString();
-                    final String resim = postSnapshot.child("resim").getValue().toString();
-                    final String kod = postSnapshot.child("kod").getValue().toString();
-                    cihazList.add(new Cihaz(isim,tur,resim,kod));*/
-                    if(postSnapshot.getKey().equals(userID)){
+                    if (postSnapshot.getKey().equals(kullaniciID)) {
                         Cihaz cihaz = postSnapshot.getValue(Cihaz.class);
-                        cihazList.add(cihaz);
-                    }
-                    else{
+                        cihazListe.add(cihaz);
+                    } else {
                         cihaz.setText(R.string.cihaz_yok);
                     }
-
                 }
-
-                cihazlarAdapter = new CihazlarAdapter(getApplicationContext(), cihazList);
-                list.setAdapter(cihazlarAdapter);
+                cihazlarAdapter = new CihazlarAdapter(getApplicationContext(), cihazListe);
+                liste.setAdapter(cihazlarAdapter);
             }
 
 
@@ -148,13 +123,12 @@ public class AnaSayfa extends AppCompatActivity
         });
 
 
-        list.setOnItemClickListener(new AdapterView.OnItemClickListener()
-
-        {
+        liste.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                fetchData process = new fetchData();
+                vericekme process = new vericekme();
                 process.execute();
+                konum.setText(R.string.cihazKonum);
             }
         });
 
@@ -175,17 +149,11 @@ public class AnaSayfa extends AppCompatActivity
 
     }
 
-    /*
-       * Called when the Activity becomes visible.
-      */
     @Override
     protected void onStart() {
         super.onStart();
     }
 
-    /*
-     * Called when the Activity is no longer visible.
-	 */
     @Override
     protected void onStop() {
         super.onStop();
@@ -198,34 +166,15 @@ public class AnaSayfa extends AppCompatActivity
         if (cihazlarAdapter != null) {
             cihazlarAdapter.notifyDataSetChanged();
         }
-        // Display the connection status
-
     }
 
     @Override
     public void onMapReady(GoogleMap map) {
-
-        googleMap = map;
-        // TODO: Before enabling the My Location layer, you must request
-        // location permission from the user. This sample does not include
-        // a request for location permission.
+        googleHarita = map;
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        googleMap.setMyLocationEnabled(true);
-
-    }
-
-    @Override
-    public void onPointerCaptureChanged(boolean hasCapture) {
-
+        googleHarita.setMyLocationEnabled(true);
     }
 
     @Override
@@ -233,32 +182,26 @@ public class AnaSayfa extends AppCompatActivity
         double latidue = location.getLatitude();
         double longitude = location.getLongitude();
         LatLng latLng = new LatLng(latidue, longitude);
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
-        googleMap.setOnMyLocationButtonClickListener(null);
-        MarkerOptions marker = new MarkerOptions().position(new LatLng(latidue, longitude)).title("Konumum");
+        googleHarita.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
+        googleHarita.setOnMyLocationButtonClickListener(null);
+        MarkerOptions marker = new MarkerOptions().position(new LatLng(latidue, longitude)).title("Cihazın Konumu");
         marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
-        googleMap.addMarker(marker);
-
+        googleHarita.addMarker(marker);
     }
 
-    // Define a DialogFragment that displays the error dialog
     public static class ErrorDialogFragment extends android.support.v4.app.DialogFragment {
 
-        // Global field to contain the error dialog
         private Dialog mDialog;
 
-        // Default constructor. Sets the dialog field to null
         public ErrorDialogFragment() {
             super();
             mDialog = null;
         }
 
-        // Set the dialog to display
         public void setDialog(Dialog dialog) {
             mDialog = dialog;
         }
 
-        // Return a Dialog to the DialogFragment.
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             return mDialog;
@@ -279,19 +222,13 @@ public class AnaSayfa extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.ana_sayfa, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -302,12 +239,11 @@ public class AnaSayfa extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_profil) {
 
-            Intent intent = new Intent(this, KullaniciProfil.class);
+            Intent intent = new Intent(this, ProfilDuzenle.class);
             startActivity(intent);
 
         } else if (id == R.id.nav_aktivasyon) {
@@ -340,15 +276,15 @@ public class AnaSayfa extends AppCompatActivity
     }
 
     public void cikisyap() {
-        AlertDialog.Builder builder1 = new AlertDialog.Builder(AnaSayfa.this);
-        builder1.setMessage("Çıkış yapmak ister misin?");
-        builder1.setCancelable(true);
+        AlertDialog.Builder dialog = new AlertDialog.Builder(AnaSayfa.this);
+        dialog.setMessage(R.string.cikissoru);
+        dialog.setCancelable(true);
 
-        builder1.setPositiveButton(
-                "Evet",
+        dialog.setPositiveButton(
+                R.string.evet,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        firebaseAuth.signOut();
+                        firebaseKullanici.signOut();
                         dialog.cancel();
                         startActivity(new Intent(AnaSayfa.this, GirisKayit.class));
                         finish();
@@ -356,17 +292,15 @@ public class AnaSayfa extends AppCompatActivity
                     }
                 });
 
-        builder1.setNegativeButton(
-                "Hayır",
+        dialog.setNegativeButton(
+                R.string.hayir,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
                 });
 
-        AlertDialog alert11 = builder1.create();
-        alert11.show();
+        AlertDialog dialog1 = dialog.create();
+        dialog1.show();
     }
-
-
 }

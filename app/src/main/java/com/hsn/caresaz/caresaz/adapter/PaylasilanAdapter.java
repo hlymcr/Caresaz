@@ -2,35 +2,25 @@ package com.hsn.caresaz.caresaz.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.media.Image;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.hsn.caresaz.caresaz.KisiModel;
-import com.hsn.caresaz.caresaz.ProfilDuzenle;
 import com.hsn.caresaz.caresaz.R;
-import com.hsn.caresaz.caresaz.RoundedTransformationBuilder;
+import com.hsn.caresaz.caresaz.ProfilResimtasarim.RoundedTransformationBuilder;
 import com.hsn.caresaz.caresaz.model.PaylasmaModel;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
@@ -82,9 +72,9 @@ public class PaylasilanAdapter extends ArrayAdapter<PaylasmaModel> {
                     (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(R.layout.paylasilan_list_item, null);
             holder = new ViewHolder();
-            holder.userName=(TextView)v.findViewById(R.id.isim);
+            holder.kullaniciAdi=(TextView)v.findViewById(R.id.isim);
             holder.konubaslik=(TextView)v.findViewById(R.id.konubaslik);
-            holder.userImage=(ImageView)v.findViewById(R.id.kullaniciresim);
+            holder.kullaniciResmi=(ImageView)v.findViewById(R.id.kullaniciresim);
             holder.kayipResim=(ImageView)v.findViewById(R.id.kayipresim);
             v.setTag(holder);
 
@@ -93,7 +83,7 @@ public class PaylasilanAdapter extends ArrayAdapter<PaylasmaModel> {
             holder = (ViewHolder) v.getTag();
         }
         PaylasmaModel paylasmaModel = paylasilanlist.get(position);
-        holder.userName.setText(paylasmaModel.getAd()+" "+paylasmaModel.getSoyad());
+        holder.kullaniciAdi.setText(paylasmaModel.getAd()+" "+paylasmaModel.getSoyad());
         holder.konubaslik.setText(paylasmaModel.getPaylasmaKonusu());
         FirebaseStorage fStorage = FirebaseStorage.getInstance();
         StorageReference storageRef = fStorage.getReference().child("users").child(paylasmaModel.getId());
@@ -101,7 +91,7 @@ public class PaylasilanAdapter extends ArrayAdapter<PaylasmaModel> {
             @Override
             public void onSuccess(Uri uri) {
 
-                Picasso.with(context).load(uri).fit().transform(transformation).centerCrop().into(holder.userImage);
+                Picasso.with(context).load(uri).fit().transform(transformation).centerCrop().into(holder.kullaniciResmi);
 
 
             }
@@ -133,9 +123,9 @@ public class PaylasilanAdapter extends ArrayAdapter<PaylasmaModel> {
 
     }
     static class ViewHolder {
-        TextView userName;
+        TextView kullaniciAdi;
         TextView konubaslik;
-        ImageView userImage;
+        ImageView kullaniciResmi;
         ImageView kayipResim;
     }
 }

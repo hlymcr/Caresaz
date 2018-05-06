@@ -1,22 +1,18 @@
 package com.hsn.caresaz.caresaz;
 
-import android.app.ActionBar;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -24,17 +20,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
+import com.hsn.caresaz.caresaz.ProfilResimtasarim.RoundedTransformationBuilder;
 import com.hsn.caresaz.caresaz.model.Cihaz;
-import com.hsn.caresaz.caresaz.model.KullaniciModel;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
@@ -47,18 +39,18 @@ public class CihazEkle extends AppCompatActivity {
     private String cihaztur;
     private ArrayAdapter<String> Turler;
     private Button ekle;
-    private String[] turler = {"Tasma", "Bileklik"};
-    private static final int PICK_IMAGE_REQUEST = 123;
-    private Uri filePath;
-    private String userID;
+    private String[] turler = {"SEÇİNİZ","Tasma", "Bileklik"};
+    private static final int RESIM_ISTEK = 123;
+    private Uri dosyaYolu;
+    private String kullaniciID;
     private Cihaz cihaz;
-    private DatabaseReference mDatabase;
+    private DatabaseReference mVeritabani;
     private Map<String, Object> postValues;
-    private FirebaseAuth mAuth;
-    private FirebaseStorage fStorage;
-    private ProgressDialog progressDialog;
+    private FirebaseAuth mKullanici;
+    private FirebaseStorage firebaseVeritabani;
+    private ProgressDialog cihazEkleDiyalog;
 
-    final Transformation transformation = new RoundedTransformationBuilder()
+    final Transformation ceviri = new RoundedTransformationBuilder()
             .borderColor(Color.GRAY)
             .borderWidthDp(4)
             .cornerRadiusDp(35)
@@ -83,6 +75,7 @@ public class CihazEkle extends AppCompatActivity {
 
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         getSupportActionBar().setTitle(R.string.cihaz_ekle);
 
         yardim = (ImageView) findViewById(R.id.yardim);
@@ -97,8 +90,8 @@ public class CihazEkle extends AppCompatActivity {
         Turler.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         tur.setAdapter(Turler);
 
-        mAuth = FirebaseAuth.getInstance();
-        fStorage = FirebaseStorage.getInstance();
+        mKullanici = FirebaseAuth.getInstance();
+        firebaseVeritabani = FirebaseStorage.getInstance();
 
 
         tur.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -117,7 +110,7 @@ public class CihazEkle extends AppCompatActivity {
         yardim.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showMyCustomAlertDialog();
+                yardimDialog();
             }
         });
 
@@ -127,18 +120,16 @@ public class CihazEkle extends AppCompatActivity {
                 Intent intent = new Intent();
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Resim Seçiniz"), PICK_IMAGE_REQUEST);
+                startActivityForResult(Intent.createChooser(intent, "Resim Seçiniz"), RESIM_ISTEK);
             }
         });
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        userID = user.getUid();
+        kullaniciID = user.getUid();
 
-        Log.d("userID:", userID);
+        mVeritabani = FirebaseDatabase.getInstance().getReference();
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-
-        //Cihaz aktivasyon koduna göre düzenlenecektir.
+        //Ekle metodu cihaz aktivasyon kodlarına göre daha sonra düzenlenecektir.
         ekle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -147,40 +138,12 @@ public class CihazEkle extends AppCompatActivity {
                 cihaz.setIsim(isim.getText().toString());
                 cihaz.setTur(cihaztur);
                 cihaz.setKod(kod.getText().toString());
-                cihaz.setResim(String.valueOf(filePath));
+                cihaz.setResim(String.valueOf(dosyaYolu));
                 //mDatabase.child("cihazlar").child(userID).setValue(cihaz);
-                Toast.makeText(CihazEkle.this, "Kaydedildi", Toast.LENGTH_SHORT).show();
-                Log.i("SAVE", "saveEntry: Kaydedildi.");
+                //Toast.makeText(CihazEkle.this, "Kaydedildi", Toast.LENGTH_SHORT).show();
                 Snackbar snackbar = Snackbar
                         .make(findViewById(R.id.lin1), "Aktivasyon kodu yanlıştır.", Snackbar.LENGTH_LONG);
                 snackbar.show();
-
-               /* if (filePath != null) {
-                    progressDialog = new ProgressDialog(CihazEkle.this);
-                    progressDialog.setMessage("Yükleniyor...");
-                    progressDialog.setCancelable(false);
-                    progressDialog.show();
-                    StorageReference storageRef = fStorage.getReference().child("cihazresim").child(mAuth.getCurrentUser().getUid()).child(kod.getText().toString());
-                    storageRef.putFile(filePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                            progressDialog.dismiss();
-                            //Toast.makeText(ProfilDuzenle.this, "Fotoğraf başarılı bir şekilde kaydedildi.", Toast.LENGTH_SHORT).show();
-                            resim.setImageBitmap(null);
-
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-
-                            progressDialog.dismiss();
-                            Toast.makeText(CihazEkle.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
-
-                        }
-                    });
-
-                }*/
 
 
             }
@@ -191,7 +154,7 @@ public class CihazEkle extends AppCompatActivity {
 
     }
 
-    public void showMyCustomAlertDialog() {
+    public void yardimDialog() {
         // dialog nesnesi oluştur ve layout dosyasına bağlan
         final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.custom_cihazyardim_dialog);
@@ -221,10 +184,10 @@ public class CihazEkle extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            filePath = data.getData();
+        if (requestCode == RESIM_ISTEK && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            dosyaYolu = data.getData();
             try {
-                Picasso.with(CihazEkle.this).load(filePath).fit().transform(transformation).into(resim);
+                Picasso.with(CihazEkle.this).load(dosyaYolu).fit().transform(ceviri).into(resim);
             } catch (Exception e) {
                 e.printStackTrace();
             }

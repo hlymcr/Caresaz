@@ -22,12 +22,11 @@ import java.net.URL;
  * Created by HULYA on 21.04.2018.
  */
 
-public class fetchData extends AsyncTask<Void,Void,Void> {
-    String data ="";
+public class vericekme extends AsyncTask<Void,Void,Void> {
+    String veri ="";
     String enlem = "";
     String boylam = "";
-    double enlemm;
-    double boylamm;
+    double enlemm,boylamm;
     @Override
     protected Void doInBackground(Void... voids) {
         try {
@@ -35,13 +34,13 @@ public class fetchData extends AsyncTask<Void,Void,Void> {
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             InputStream inputStream = httpURLConnection.getInputStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-            String line = "";
-            while(line != null){
-                line = bufferedReader.readLine();
-                data = data + line;
+            String satir = "";
+            while(satir != null){
+                satir = bufferedReader.readLine();
+                veri = veri + satir;
             }
 
-            JSONArray JA = new JSONArray(data);
+            JSONArray JA = new JSONArray(veri);
             for(int i =0 ;i <JA.length(); i++){
                 JSONObject JO = (JSONObject) JA.get(i);
                 enlem = (String) JO.get("enlem");
@@ -65,7 +64,8 @@ public class fetchData extends AsyncTask<Void,Void,Void> {
         enlemm = Double.parseDouble(enlem);
         boylamm = Double.parseDouble(boylam);
         LatLng koordinat = new LatLng(enlemm,boylamm);
-        AnaSayfa.googleMap.addMarker(new MarkerOptions().position(koordinat).title("Konum"));
-        AnaSayfa.googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(koordinat, 15));
+        AnaSayfa.googleHarita.addMarker(new MarkerOptions().position(koordinat).title("Konum"));
+        AnaSayfa.googleHarita.moveCamera(CameraUpdateFactory.newLatLngZoom(koordinat, 13));
+
     }
 }

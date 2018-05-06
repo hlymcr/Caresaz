@@ -35,17 +35,15 @@ public class GirisKayit extends AppCompatActivity {
     final Context context = this;
 
     AutoCompleteTextView eposta, kayitEposta;
-    DatabaseReference databaseReference;
+    DatabaseReference veritabaniReferans;
     EditText sifre, kayitSifre;
     TextView kayit;
     Button giris, kayitOl, iptal;
     ImageView sifreU;
     ImageView resim;
-    ImageView turkey,english;
-
-    FirebaseAuth mAuth;
-
-    private static final String TAG = "EmailPassword";
+    ImageView turkiye, ingilizce;
+    FirebaseAuth mKullanici;
+    private static final String TAG = "EpostaSifre";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,108 +51,98 @@ public class GirisKayit extends AppCompatActivity {
         setContentView(R.layout.activity_giris_kayit);
 
         //Firebase bağlantı
-        mAuth = FirebaseAuth.getInstance();
+        mKullanici = FirebaseAuth.getInstance();
 
         eposta = (AutoCompleteTextView) findViewById(R.id.eposta);
         sifre = (EditText) findViewById(R.id.sifre);
         kayit = (TextView) findViewById(R.id.kayit);
         giris = (Button) findViewById(R.id.giris);
 
-        turkey =(ImageView)findViewById(R.id.turkey);
-        english=(ImageView)findViewById(R.id.english);
+        turkiye = (ImageView) findViewById(R.id.turkey);
+        ingilizce = (ImageView) findViewById(R.id.english);
 
-        turkey.setOnClickListener(new View.OnClickListener() {
+        turkiye.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Locale locale = new Locale(""); //locale i default locale yani türkçe yaptık. Artık değişkenler values paketinden alınacak
+                Locale locale = new Locale("");
                 Locale.setDefault(locale);
                 Configuration config = new Configuration();
                 config.locale = locale;
                 getBaseContext().getResources().updateConfiguration(config,
                         getBaseContext().getResources().getDisplayMetrics());
-                finish();//mevcut acivity i bitir.
+                finish();
                 startActivity(getIntent());
             }
         });
 
 
-        english.setOnClickListener(new View.OnClickListener() {
+        ingilizce.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Locale locale = new Locale("en");  //locale en yaptık. Artık değişkenler values-en paketinden alınacak
+                Locale locale = new Locale("en");
                 Locale.setDefault(locale);
                 Configuration config = new Configuration();
                 config.locale = locale;
                 getBaseContext().getResources().updateConfiguration(config,
                         getBaseContext().getResources().getDisplayMetrics());
-                finish();//mevcut acivity i bitir.
-                startActivity(getIntent());//activity i baştan yükle
+                finish();
+                startActivity(getIntent());
             }
         });
-
 
 
         kayit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showMyCustomAlertDialog();
+                kayitDialog();
             }
         });
         giris.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                signIn(eposta.getText().toString(),sifre.getText().toString());
+                signIn(eposta.getText().toString(), sifre.getText().toString());
             }
         });
 
     }
-    // [START on_start_check_user]
+
     @Override
     public void onStart() {
         super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        FirebaseUser currentUser = mKullanici.getCurrentUser();
         updateUI(currentUser);
     }
-    // [END on_start_check_user]
 
     private void signIn(String eposta, String sifre) {
         Log.d(TAG, "signIn:" + eposta);
-        if (!girisValidateForm()) {
+        if (!girisOnayForm()) {
             return;
         }
-        mAuth.signInWithEmailAndPassword(eposta, sifre)
+        mKullanici.signInWithEmailAndPassword(eposta, sifre)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
+                            FirebaseUser user = mKullanici.getCurrentUser();
                             Toast.makeText(GirisKayit.this, "Giriş Başarılı.",
                                     Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(GirisKayit.this, AnaSayfa.class);
                             updateUI(user);
                             startActivity(intent);
                         } else {
-                            // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
                             Toast.makeText(GirisKayit.this, "Kimlik Doğrulama Başarısız oldu.",
                                     Toast.LENGTH_SHORT).show();
                             updateUI(null);
                         }
-
-                        // [START_EXCLUDE]
                         if (!task.isSuccessful()) {
-                            Toast.makeText(GirisKayit.this,"Kimlik Doğrulama Başarısız oldu",Toast.LENGTH_LONG);
+                            Toast.makeText(GirisKayit.this, "Kimlik Doğrulama Başarısız oldu", Toast.LENGTH_LONG);
                         }
-                        // [END_EXCLUDE]
                     }
                 });
-        // [END sign_in_with_email]
     }
 
-    public void showMyCustomAlertDialog() {
+    public void kayitDialog() {
         // dialog nesnesi oluştur ve layout dosyasına bağlan
         final Dialog dialog = new Dialog(context);
         dialog.setContentView(R.layout.custom_kayit_dialog);
@@ -185,24 +173,20 @@ public class GirisKayit extends AppCompatActivity {
     }
 
     private void createAccount(String eposta, String sifre) {
-        Log.d(TAG, "createAccount:" + eposta);
-        if (!kayitValidateForm()) {
+        if (!kayitOnayForm()) {
             return;
         }
-        mAuth.createUserWithEmailAndPassword(eposta, sifre)
+        mKullanici.createUserWithEmailAndPassword(eposta, sifre)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            String uid =FirebaseAuth.getInstance().getCurrentUser().getUid();
-                            databaseReference= FirebaseDatabase.getInstance().getReference("kullanicilar/"+uid);
-                            sendEmailVerification();
-                            Log.d(TAG, "createUserWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
+                    public void onComplete(@NonNull Task<AuthResult> görev) {
+                        if (görev.isSuccessful()) {
+                            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                            veritabaniReferans = FirebaseDatabase.getInstance().getReference("kullanicilar/" + uid);
+                            EmailDogrulama();
+                            FirebaseUser user = mKullanici.getCurrentUser();
                             updateUI(user);
                         } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
                             Toast.makeText(GirisKayit.this, "Doğrulama Başarısız",
                                     Toast.LENGTH_SHORT).show();
                             updateUI(null);
@@ -211,14 +195,11 @@ public class GirisKayit extends AppCompatActivity {
 
                     }
                 });
-        // [END create_user_with_email]
-
-
     }
 
     private void updateUI(FirebaseUser user) {
         if (user != null) {
-            Intent i = new Intent(this,AnaSayfa.class);
+            Intent i = new Intent(this, AnaSayfa.class);
             startActivity(i);
             finish();
         } else {
@@ -227,12 +208,12 @@ public class GirisKayit extends AppCompatActivity {
 
     }
 
-    private boolean kayitValidateForm() {
+    private boolean kayitOnayForm() {
         //Kayıt Dialog kontrol
         boolean valid = true;
 
         String email = kayitEposta.getText().toString();
-        if (TextUtils.isEmpty(email)){ //Boşsa "Gerekli" uyarısını ver
+        if (TextUtils.isEmpty(email)) { //Boşsa "Gerekli" uyarısını ver
             kayitEposta.setError("Gerekli.");
             valid = false;
         } else {
@@ -249,7 +230,8 @@ public class GirisKayit extends AppCompatActivity {
 
         return valid;
     }
-    private boolean girisValidateForm() {
+
+    private boolean girisOnayForm() {
         //Giriş eposta şifre kontrol
         boolean valid = true;
 
@@ -272,34 +254,26 @@ public class GirisKayit extends AppCompatActivity {
         return valid;
     }
 
-    private void sendEmailVerification() {
+    private void EmailDogrulama() {
         //Email Doğrulama gönderme
-        final FirebaseUser user = mAuth.getCurrentUser();
+        final FirebaseUser user = mKullanici.getCurrentUser();
         user.sendEmailVerification()
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
                     @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        // [START_EXCLUDE]
-                        // Re-enable button
-                        //findViewById(R.id.verify_email_button).setEnabled(true);
-
-                        if (task.isSuccessful()) {
+                    public void onComplete(@NonNull Task<Void> görev) {
+                        if (görev.isSuccessful()) {
                             Toast.makeText(GirisKayit.this,
                                     "\n" +
                                             "Adresine doğrulama e-postası gönderildi  " + user.getEmail(),
                                     Toast.LENGTH_SHORT).show();
                         } else {
-                            Log.e(TAG, "sendEmailVerification", task.getException());
+                            Log.e(TAG, "sendEmailVerification", görev.getException());
                             Toast.makeText(GirisKayit.this,
                                     "\n" +
                                             "Doğrulama e-postası gönderilemedi.",
                                     Toast.LENGTH_SHORT).show();
                         }
-                        // [END_EXCLUDE]
                     }
                 });
-        // [END send_email_verification]
-
     }
-
 }

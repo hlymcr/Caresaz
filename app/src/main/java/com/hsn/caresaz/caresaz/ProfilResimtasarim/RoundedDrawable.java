@@ -1,4 +1,4 @@
-package com.hsn.caresaz.caresaz;
+package com.hsn.caresaz.caresaz.ProfilResimtasarim;
 
 /**
  * Created by HULYA on 1.04.2018.
@@ -23,6 +23,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.ImageView.ScaleType;
+
 import java.util.HashSet;
 import java.util.Set;
 

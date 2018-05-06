@@ -5,8 +5,8 @@
     <string name="action_sign_in">Giriş Yap</string>
     <string name="action_sign_in_short">Giriş</string>
     <string name="error_invalid_email">Geçersiz E-posta Adresi</string>
-    <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_invalid_password">Şifre çok kısa</string>
+    <string name="error_incorrect_password">Bu Şifre Yanlış</string>
     <string name="error_field_required">This field is required</string>
     <string name="kayit"><u>Kayıtlı Değil misin?</u></string>
     <string name="slogan">Kaybetme</string>
@@ -50,6 +50,10 @@
     <string name="detay">Detay</string>
     <string name="paylas">Paylaş</string>
     <string name="konum">Konumunuz</string>
+    <string name="cihazKonum">Cihazın Konumu:</string>
+    <string name="cikissoru">Çıkış yapmak ister misin?</string>
+    <string name="evet">Evet</string>
+    <string name="hayir">Hayır</string>
     <string name="cihazlar">Cihazlarım</string>
     <string name="tamam">Tamam</string>
     <string name="isim">İsim</string>

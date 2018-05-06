@@ -31,6 +31,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.hsn.caresaz.caresaz.ProfilResimtasarim.RoundedTransformationBuilder;
 import com.hsn.caresaz.caresaz.model.KullaniciModel;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
@@ -48,21 +49,21 @@ public class ProfilDuzenle extends AppCompatActivity {
             "Uşak", "Van", "Yalova", "Yozgat", "Zonguldak"
     };
     private Spinner sehirler;
-    private ArrayAdapter<String> dataAdapterForIller;
+    private ArrayAdapter<String> veriAdapterForIller;
     private EditText ad, soyad, tel;
     String adS, soyadS, telS, sehirS;
     private Button kaydet;
-    String userID;
+    String kullaniciID;
     private KullaniciModel kullaniciModel;
-    private DatabaseReference mDatabase;
+    private DatabaseReference mVeritabani;
     private Map<String, Object> postValues;
-    private static final int PICK_IMAGE_REQUEST = 123;
+    private static final int RESIM_ISTEK = 123;
     private Uri filePath;
-    private FirebaseAuth mAuth;
-    private FirebaseStorage fStorage;
-    private ProgressDialog progressDialog;
+    private FirebaseAuth mKullanici;
+    private FirebaseStorage firebaseDepolama;
+    private ProgressDialog KayitDialog;
     ImageView resim;
-    final Transformation transformation = new RoundedTransformationBuilder()
+    final Transformation ceviri = new RoundedTransformationBuilder()
             .borderColor(Color.GRAY)
             .borderWidthDp(4)
             .cornerRadiusDp(35)
@@ -70,13 +71,12 @@ public class ProfilDuzenle extends AppCompatActivity {
             .build();
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            filePath = data.getData();
+    protected void onActivityResult(int istekKod, int sonucKod, Intent veri) {
+        super.onActivityResult(istekKod, sonucKod, veri);
+        if (istekKod == RESIM_ISTEK && sonucKod == RESULT_OK && veri != null && veri.getData() != null) {
+            filePath = veri.getData();
             try {
-                Picasso.with(ProfilDuzenle.this).load(filePath).fit().transform(transformation).into(resim);
+                Picasso.with(ProfilDuzenle.this).load(filePath).fit().transform(ceviri).into(resim);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -95,44 +95,36 @@ public class ProfilDuzenle extends AppCompatActivity {
         resim = (ImageView) findViewById(R.id.resim);
         kaydet = (Button) findViewById(R.id.kaydet);
         sehirler = (Spinner) findViewById(R.id.sehir);
-        kullaniciModel=new KullaniciModel();
+        kullaniciModel = new KullaniciModel();
 
-
-
-        mAuth = FirebaseAuth.getInstance();
-        fStorage = FirebaseStorage.getInstance();
-        progressDialog = new ProgressDialog(ProfilDuzenle.this);
-        progressDialog.setMessage("Yükleniyor...");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-        StorageReference storageRef = fStorage.getReference().child("users").child(mAuth.getCurrentUser().getUid());
-        storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+        mKullanici = FirebaseAuth.getInstance();
+        firebaseDepolama = FirebaseStorage.getInstance();
+        KayitDialog = new ProgressDialog(ProfilDuzenle.this);
+        KayitDialog.setMessage("Yükleniyor...");
+        KayitDialog.setCancelable(false);
+        KayitDialog.show();
+        StorageReference depolamaReferans = firebaseDepolama.getReference().child("users").child(mKullanici.getCurrentUser().getUid());
+        depolamaReferans.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
 
-                progressDialog.dismiss();
-                Picasso.with(ProfilDuzenle.this).load(uri).fit().transform(transformation).into(resim);
+                KayitDialog.dismiss();
+                Picasso.with(ProfilDuzenle.this).load(uri).fit().transform(ceviri).into(resim);
 
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
 
-                progressDialog.dismiss();
-                Toast.makeText(ProfilDuzenle.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                KayitDialog.dismiss();
+                Toast.makeText(ProfilDuzenle.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
 
             }
         });
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            tel.addTextChangedListener(new PhoneNumberFormattingTextWatcher("TR"));
-        } else {
-            tel.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
-        }
-
-        dataAdapterForIller = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, iller);
-        dataAdapterForIller.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        sehirler.setAdapter(dataAdapterForIller);
+        veriAdapterForIller = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, iller);
+        veriAdapterForIller.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sehirler.setAdapter(veriAdapterForIller);
 
         sehirler.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
@@ -150,12 +142,8 @@ public class ProfilDuzenle extends AppCompatActivity {
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        userID = user.getUid();
-
-        Log.d("userID:", userID);
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-
+        kullaniciID = user.getUid();
+        mVeritabani = FirebaseDatabase.getInstance().getReference();
         kaydet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -167,21 +155,21 @@ public class ProfilDuzenle extends AppCompatActivity {
                     kullaniciModel.setSoyad(soyad.getText().toString());
                     kullaniciModel.setTel(tel.getText().toString());
                     kullaniciModel.setSehir(sehirS);
-                    mDatabase.child("kullanicilar").child(userID).setValue(kullaniciModel);
+                    mVeritabani.child("kullanicilar").child(kullaniciID).setValue(kullaniciModel);
                     Toast.makeText(ProfilDuzenle.this, "Kaydedildi", Toast.LENGTH_SHORT).show();
                     Log.i("SAVE", "saveEntry: Kaydedildi.");
 
-                    if(filePath!=null) {
-                        progressDialog = new ProgressDialog(ProfilDuzenle.this);
-                        progressDialog.setMessage("Yükleniyor...");
-                        progressDialog.setCancelable(false);
-                        progressDialog.show();
-                        StorageReference storageRef = fStorage.getReference().child("users").child(mAuth.getCurrentUser().getUid());
-                        storageRef.putFile(filePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    if (filePath != null) {
+                        KayitDialog = new ProgressDialog(ProfilDuzenle.this);
+                        KayitDialog.setMessage("Yükleniyor...");
+                        KayitDialog.setCancelable(false);
+                        KayitDialog.show();
+                        StorageReference depolamaReferans = firebaseDepolama.getReference().child("users").child(mKullanici.getCurrentUser().getUid());
+                        depolamaReferans.putFile(filePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                                progressDialog.dismiss();
+                                KayitDialog.dismiss();
                                 //Toast.makeText(ProfilDuzenle.this, "Fotoğraf başarılı bir şekilde kaydedildi.", Toast.LENGTH_SHORT).show();
                                 resim.setImageBitmap(null);
 
@@ -190,8 +178,8 @@ public class ProfilDuzenle extends AppCompatActivity {
                             @Override
                             public void onFailure(@NonNull Exception e) {
 
-                                progressDialog.dismiss();
-                                Toast.makeText(ProfilDuzenle.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                                KayitDialog.dismiss();
+                                Toast.makeText(ProfilDuzenle.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
 
                             }
                         });
@@ -203,20 +191,20 @@ public class ProfilDuzenle extends AppCompatActivity {
                     kullaniciModel.setTel(tel.getText().toString());
                     kullaniciModel.setSehir(sehirS);
                     postValues = kullaniciModel.toMap();
-                    mDatabase.child("kullanicilar").child(userID).updateChildren(postValues);
+                    mVeritabani.child("kullanicilar").child(kullaniciID).updateChildren(postValues);
                     Toast.makeText(ProfilDuzenle.this, "Güncellendi", Toast.LENGTH_SHORT).show();
                     Log.i("SAVE", "saveEntry: Güncellendi.");
-                    if(filePath!=null) {
-                        progressDialog = new ProgressDialog(ProfilDuzenle.this);
-                        progressDialog.setMessage("Yükleniyor...");
-                        progressDialog.setCancelable(false);
-                        progressDialog.show();
-                        StorageReference storageRef = fStorage.getReference().child("users").child(mAuth.getCurrentUser().getUid());
+                    if (filePath != null) {
+                        KayitDialog = new ProgressDialog(ProfilDuzenle.this);
+                        KayitDialog.setMessage("Yükleniyor...");
+                        KayitDialog.setCancelable(false);
+                        KayitDialog.show();
+                        StorageReference storageRef = firebaseDepolama.getReference().child("users").child(mKullanici.getCurrentUser().getUid());
                         storageRef.putFile(filePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                                progressDialog.dismiss();
+                                KayitDialog.dismiss();
                                 //Toast.makeText(ProfilDuzenle.this, "Fotoğraf başarılı bir şekilde kaydedildi.", Toast.LENGTH_SHORT).show();
                                 resim.setImageBitmap(null);
 
@@ -225,8 +213,8 @@ public class ProfilDuzenle extends AppCompatActivity {
                             @Override
                             public void onFailure(@NonNull Exception e) {
 
-                                progressDialog.dismiss();
-                                Toast.makeText(ProfilDuzenle.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                                KayitDialog.dismiss();
+                                Toast.makeText(ProfilDuzenle.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
 
                             }
                         });
@@ -239,12 +227,10 @@ public class ProfilDuzenle extends AppCompatActivity {
 
 
         });
-
-
-        mDatabase.child("kullanicilar").child(userID).addValueEventListener(new ValueEventListener() {
+        mVeritabani.child("kullanicilar").child(kullaniciID).addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                KullaniciModel kullaniciModel = dataSnapshot.getValue(KullaniciModel.class);
+            public void onDataChange(DataSnapshot dsveri) {
+                KullaniciModel kullaniciModel = dsveri.getValue(KullaniciModel.class);
                 if (kullaniciModel == null) {
                     Toast.makeText(ProfilDuzenle.this, "Lütfen Profil bilgilerini ekleyiniz", Toast.LENGTH_SHORT).show();
                 } else {
@@ -255,10 +241,7 @@ public class ProfilDuzenle extends AppCompatActivity {
                     ad.setText(adS);
                     soyad.setText(soyadS);
                     tel.setText(telS);
-                    //Picasso.with(ProfilDuzenle.this).load(secilenResim).fit().transform(transformation).into(resim);
-
                 }
-
             }
 
             @Override
@@ -269,11 +252,11 @@ public class ProfilDuzenle extends AppCompatActivity {
         });
     }
 
-   public void FotografDegistir(View view) {
+    public void FotografDegistir(View view) {
         Intent intent = new Intent();
-        intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Resim Seçiniz"), PICK_IMAGE_REQUEST);
+        intent.setType("image/*");
+        startActivityForResult(Intent.createChooser(intent, "Resim Seçiniz"), RESIM_ISTEK);
     }
 
 }

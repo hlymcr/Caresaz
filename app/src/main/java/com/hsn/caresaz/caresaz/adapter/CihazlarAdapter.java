@@ -22,9 +22,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.hsn.caresaz.caresaz.R;
-import com.hsn.caresaz.caresaz.RoundedTransformationBuilder;
+import com.hsn.caresaz.caresaz.ProfilResimtasarim.RoundedTransformationBuilder;
 import com.hsn.caresaz.caresaz.model.Cihaz;
-import com.hsn.caresaz.caresaz.model.PaylasmaModel;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 

@@ -60,7 +60,10 @@
     <string name="kaydet">Save</string>
     <string name="hakkımızda">About us</string>
     <string name="yardım">Help</string>
-
+    <string name="cihazKonum">Device Location</string>
+    <string name="cikissoru">You want to get out?</string>
+    <string name="evet">Yes</string>
+    <string name="hayir">No</string>
 
     <string name="isim_gir">Enter your name.</string>
     <string name="section_format">Hello World from section: %1$d</string>

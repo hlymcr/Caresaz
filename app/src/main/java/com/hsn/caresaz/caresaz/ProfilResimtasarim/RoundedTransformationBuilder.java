@@ -1,4 +1,4 @@
-package com.hsn.caresaz.caresaz;
+package com.hsn.caresaz.caresaz.ProfilResimtasarim;
 
 /**
  * Created by HULYA on 1.04.2018.
@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.widget.ImageView;
+
 import com.squareup.picasso.Transformation;
 import java.util.Arrays;
 //Profil Resmini Oval yapmamızı sağlayan class

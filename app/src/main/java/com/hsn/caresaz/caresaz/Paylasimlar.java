@@ -22,12 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Paylasimlar extends AppCompatActivity {
-    private FirebaseAuth firebaseAuth;
-    private DatabaseReference databaseReference;
+    private FirebaseAuth firebaseKullanicilar;
+    private DatabaseReference veritabaniReferans;
     private ListView list;
     private PaylasilanAdapter paylasilanAdapter;
     private List<PaylasmaModel> paylasilanList;
-    private ProgressDialog progressDialog;
+    private ProgressDialog yüklemeDialog;
 
 
 
@@ -49,40 +49,27 @@ public class Paylasimlar extends AppCompatActivity {
         });
 
 
-        firebaseAuth = FirebaseAuth.getInstance();
-        databaseReference = FirebaseDatabase.getInstance().getReference("PaylasilanKayip");
+        firebaseKullanicilar = FirebaseAuth.getInstance();
+        veritabaniReferans = FirebaseDatabase.getInstance().getReference("PaylasilanKayip");
 
         list = (ListView) findViewById(R.id.listView);
 
         paylasilanList = new ArrayList<>();
 
-        progressDialog = new ProgressDialog(Paylasimlar.this);
-        progressDialog.setMessage("Yükleniyor...");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
+        yüklemeDialog = new ProgressDialog(Paylasimlar.this);
+        yüklemeDialog.setMessage("Yükleniyor...");
+        yüklemeDialog.setCancelable(false);
+        yüklemeDialog.show();
 
-        databaseReference.addValueEventListener(new ValueEventListener() {
+        veritabaniReferans.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                progressDialog.dismiss();
+                yüklemeDialog.dismiss();
                 paylasilanList.clear();
 
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     PaylasmaModel userObj = postSnapshot.getValue(PaylasmaModel.class);
                     paylasilanList.add(userObj);
-                  /*  final String ad= postSnapshot.child("ad").getValue().toString();
-                    final String soyad= postSnapshot.child("soyad").getValue().toString();
-                    final String id = postSnapshot.child("id").getValue().toString();
-                    final String il = postSnapshot.child("il").getValue().toString();
-                    final String ilce = postSnapshot.child("ilce").getValue().toString();
-                    final String kayipDetay = postSnapshot.child("kayipDetay").getValue().toString();
-                    final String konu = postSnapshot.child("paylasmaKonusu").getValue().toString();
-                    final String path = postSnapshot.child("resimpath").getValue().toString();
-                    final String tarih = postSnapshot.child("tarih").getValue().toString();
-                    final String tel = postSnapshot.child("tel").getValue().toString();
-                    paylasilanList.add(new PaylasmaModel(konu,il,ilce,tel,tarih,path,kayipDetay,id,ad,soyad));*/
-
-
                 }
 
                 paylasilanAdapter = new PaylasilanAdapter(getApplicationContext(),paylasilanList);
@@ -93,7 +80,7 @@ public class Paylasimlar extends AppCompatActivity {
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
-                progressDialog.dismiss();
+                yüklemeDialog.dismiss();
                 Toast.makeText(Paylasimlar.this, "DATABASE error", Toast.LENGTH_SHORT).show();
             }
         });
