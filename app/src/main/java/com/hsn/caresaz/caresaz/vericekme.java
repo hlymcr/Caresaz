@@ -27,6 +27,7 @@ public class vericekme extends AsyncTask<Void,Void,Void> {
     String enlem = "";
     String boylam = "";
     double enlemm,boylamm;
+    String nabiz = "";
     @Override
     protected Void doInBackground(Void... voids) {
         try {
@@ -45,6 +46,8 @@ public class vericekme extends AsyncTask<Void,Void,Void> {
                 JSONObject JO = (JSONObject) JA.get(i);
                 enlem = (String) JO.get("enlem");
                 boylam = (String) JO.get("boylam");
+                nabiz = (String) JO.get("nabiz");
+
             }
 
         } catch (MalformedURLException e) {
@@ -66,6 +69,7 @@ public class vericekme extends AsyncTask<Void,Void,Void> {
         LatLng koordinat = new LatLng(enlemm,boylamm);
         AnaSayfa.googleHarita.addMarker(new MarkerOptions().position(koordinat).title("Konum"));
         AnaSayfa.googleHarita.moveCamera(CameraUpdateFactory.newLatLngZoom(koordinat, 13));
+        //AnaSayfa.nabizText.setText(nabiz);
 
     }
 }

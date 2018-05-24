@@ -60,6 +60,7 @@ public class AnaSayfa extends AppCompatActivity
     private ListView liste;
     private CihazlarAdapter cihazlarAdapter;
     private List<Cihaz> cihazListe = null;
+    private TextView nabiz;
 
 
     @Override
@@ -70,6 +71,8 @@ public class AnaSayfa extends AppCompatActivity
         cihazekle = (FloatingActionButton) findViewById(R.id.fab);
         final TextView cihaz = (TextView) findViewById(R.id.textView3);
         liste = (ListView) findViewById(R.id.listView);
+
+        //nabiz = (TextView) findViewById(R.id.nabizText);
 
         setSupportActionBar(toolbar);
         konum = (TextView) findViewById(R.id.konum);

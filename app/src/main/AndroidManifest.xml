@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.hsn.caresaz.caresaz">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -27,11 +28,13 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/placeholderr"
         android:label="@string/app_name"
+        android:debuggable="false"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="HardcodedDebugMode">
         <uses-library
             android:name="com.google.android.maps"
             android:required="true" />
@@ -51,10 +54,7 @@
             android:name=".AnaSayfa"
             android:label="@string/title_activity_ana_sayfa"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".KullaniciProfil"
-            android:label="@string/title_activity_kullanici_profil"
-            android:theme="@style/AppTheme.NoActionBar" />
+
         <activity android:name=".ProfilDuzenle" />
         <activity android:name=".PaylasimEkle" />
         <activity android:name=".Paylasimlar" />

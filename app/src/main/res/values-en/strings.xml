@@ -68,6 +68,6 @@
     <string name="isim_gir">Enter your name.</string>
     <string name="section_format">Hello World from section: %1$d</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
+    <!-- TODO: Remove or change tplaceholderrlder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
